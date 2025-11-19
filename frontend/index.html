@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mart Lifestyle Concierge Agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    
+    }
+    .app {
+      width: min(960px, 100% - 32px);
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16);
+      display: flex;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 260px;
+      padding: 24px;
+      background: linear-gradient(150deg, #0f766e, #0369a1);
+      color: #e0f2fe;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .sidebar h1 {
+      margin: 0 0 8px;
+      font-size: 1.4rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      background: rgba(15, 23, 42, 0.25);
+    }
+    .badge span {
+      opacity: 0.8;
+    }
+    .sidebar p {
+      margin: 8px 0 0;
+      font-size: 0.8rem;
+      opacity: 0.95;
+    }
+    .quick-actions {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .quick-actions label {
+      font-size: 0.75rem;
+      opacity: 0.9;
+    }
+    .quick-actions button {
+      all: unset;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      background: rgba(15, 23, 42, 0.18);
+      color: #e0f2fe;
+    }
+    .quick-actions button:hover {
+      background: rgba(15, 23, 42, 0.28);
+    }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 18px 14px;
+    }
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .msg {
+      max-width: 80%;
+      padding: 9px 11px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .msg.user {
+      align-self: flex-end;
+      background: #2563eb;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .msg.bot {
+      align-self: flex-start;
+      background: #f1f5f9;
+      color: #0f172a;
+      border-bottom-left-radius: 4px;
+    }
+    .msg .meta {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      margin-bottom: 3px;
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid #cbd5f5;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .input-row input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+    }
+    .input-row button {
+      border: none;
+      border-radius: 999px;
+      padding: 0 18px;
+      background: #2563eb;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .input-row button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    @media (max-width: 720px) {
+      .app { flex-direction: column; }
+      .sidebar { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div>
+      <h1>Mart Lifestyle Concierge</h1>
+      <div class="badge">
+        <strong>Multi-Agent</strong>
+        <span>planner • meals • shopping • tasks</span>
+      </div>
+      <p>Ask anything about your day, meals, shopping, or todos. The orchestrator picks the best agent for you.</p>
+    </div>
+
+    <div class="quick-actions">
+      <label>Try these prompts:</label>
+      <button onclick="sendQuick('Plan my weekday schedule with office, gym, and MERN practice.')">🗓 Plan my day</button>
+      <button onclick="sendQuick('Suggest healthy vegetarian Indian meals for today.')">🍛 Meal ideas</button>
+      <button onclick="sendQuick('Create a weekly grocery list for a family of three in Bangalore.')">🛒 Grocery list</button>
+      <button onclick="sendQuick('Add task: Apply for frontend developer jobs in Bangalore')">✅ Add a task</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div id="messages" class="messages">
+      <div class="msg bot">
+        <div class="meta">concierge · welcome</div>
+        Hi Anamika! I’m your Mart Lifestyle Concierge. Tell me what you need help with – planning your day, meals,
+        shopping, or tasks.
+      </div>
+    </div>
+
+    <form class="input-row" onsubmit="handleSubmit(event)">
+      <input id="input" placeholder="Type a message… e.g. Plan my weekday routine with office, gym, and study." autocomplete="off" />
+      <button id="sendBtn" type="submit">Send</button>
+    </form>
+  </main>
+</div>
+
+<script>
+  const API_BASE = "http://127.0.0.1:8000";
+
+  // ---------- Display messages ----------
+  function appendMessage(role, meta, text) {
+    const messagesEl = document.getElementById("messages");
+    const div = document.createElement("div");
+    div.className = `msg ${role}`;
+    div.innerHTML = `<div class="meta">${meta}</div>${text}`;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  // ---------- Send message to backend ----------
+  async function sendMessage(text) {
+    const inputEl = document.getElementById("input");
+    const sendBtn = document.getElementById("sendBtn");
+
+    appendMessage("user", "you", text);
+    inputEl.value = "";
+    sendBtn.disabled = true;
+    sendBtn.textContent = "Thinking…";
+
+    try {
+      const res = await fetch(`${API_BASE}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text })
+      });
+
+      if (!res.ok) {
+        appendMessage("bot", "error", "Backend error: " + res.status);
+        return;
+      }
+
+      const data = await res.json();
+      appendMessage("bot", data.agent, data.reply);
+
+    } catch (err) {
+      appendMessage("bot", "error", "Could not reach backend. Is FastAPI running on 127.0.0.1:8000?");
+    }
+
+    sendBtn.disabled = false;
+    sendBtn.textContent = "Send";
+  }
+
+  // ---------- Form handling ----------
+  function handleSubmit(event) {
+    event.preventDefault();  // prevents GET /chat
+    const inputEl = document.getElementById("input");
+    const text = inputEl.value.trim();
+    if (text) sendMessage(text);
+  }
+
+  // ---------- Quick prompts ----------
+  function sendQuick(text) {
+    sendMessage(text);
+  }
+</script>
+
+</body>
+</html>
