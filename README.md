@@ -3,7 +3,14 @@
 
 Welcome to **Mart Lifestyle AI Concierge Agent**, a smart assistant built using **FastAPI**, **Gemini 1.5 Flash**, and **Task Memory** to automate everyday life — from task tracking to AI-powered meal plans and intelligent shopping lists.
 
-This project is created as part of the **Google & Kaggle – Agents Intensive Capstone Project (2025)** under the **Concierge Agents Track**.
+This project is created as part of the **Agents Intensive Capstone Project (2025)** under the ** Agents Track**.
+
+##  Live Demo  
+ https://mart-lifestyle-agent.vercel.app
+
+Experience the fully deployed React app live on Vercel.  
+You can interact with the tasks, meal planner, grocery list, AI agent, and more in real time.
+
 
 ---
 
